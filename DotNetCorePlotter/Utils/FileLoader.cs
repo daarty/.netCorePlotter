@@ -40,15 +40,7 @@ namespace DotNetCorePlotter.Utils
                 return dataPoints;
             }
 
-            try
-            {
-                dataPoints.Sort((p1, p2) => p1.X.CompareTo(p2.X));
-            }
-            catch (Exception ex) when (ex is ArgumentNullException || ex is ArgumentException)
-            {
-                Debug.WriteLine($"Failed sorting Datapoints. Cause: '{ex.Message}'");
-                dataPoints = new List<DataPoint> { };
-            }
+            this.SortDataPoints(dataPoints);
 
             return dataPoints;
         }
@@ -62,7 +54,7 @@ namespace DotNetCorePlotter.Utils
             }
             catch (Exception ex)
             {
-                throw new LoadDataException($"Failed loading the file. Cause: '{ex.Message}'");
+                throw new LoadDataException(LoadDataErrorCode.FailedLoadingFile, $"Failed loading the file. Cause: '{ex.Message}'");
             }
 
             var data = new List<DataPoint>();
@@ -73,12 +65,11 @@ namespace DotNetCorePlotter.Utils
                 var values = line.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 if (values.Length != 2)
                 {
-                    throw new LoadDataException($"Failed parsing the file because of an invalid format in the following line '{line}'.");
+                    throw new LoadDataException(LoadDataErrorCode.InvalidNumberOfValues, $"Failed parsing the file because of an invalid format in the following line '{line}'.");
                 }
 
-                double x, y = 0d;
-                x = ParseDouble(values[0]);
-                y = ParseDouble(values[1]);
+                var x = ParseDouble(values[0]);
+                var y = ParseDouble(values[1]);
 
                 Debug.WriteLine($" - x: '{x}', y: '{y}'");
                 data.Add(new DataPoint(x, y));
@@ -98,7 +89,20 @@ namespace DotNetCorePlotter.Utils
             }
             catch (Exception ex) when (ex is ArgumentNullException || ex is FormatException || ex is OverflowException)
             {
-                throw new LoadDataException($"Failed parsing the value '{input}'. Cause: '{ex.Message}'");
+                throw new LoadDataException(LoadDataErrorCode.InvalidValue, $"Failed parsing the value '{input}'. Cause: '{ex.Message}'");
+            }
+        }
+
+        private void SortDataPoints(List<DataPoint> dataPoints)
+        {
+            try
+            {
+                dataPoints.Sort((p1, p2) => p1.X.CompareTo(p2.X));
+            }
+            catch (Exception ex) when (ex is ArgumentNullException || ex is ArgumentException)
+            {
+                Debug.WriteLine($"Failed sorting Datapoints. Cause: '{ex.Message}'");
+                dataPoints = new List<DataPoint> { };
             }
         }
     }

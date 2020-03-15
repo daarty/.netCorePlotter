@@ -12,16 +12,18 @@ namespace DotNetCorePlotter.Utils
         /// <summary>
         /// Creates a new instance of <see cref="MainWindow"/>.
         /// </summary>
-        public LoadDataException()
+        public LoadDataException(LoadDataErrorCode errorCode)
         {
+            this.ErrorCode = errorCode;
         }
 
         /// <summary>
         /// Creates a new instance of <see cref="MainWindow"/>.
         /// </summary>
         /// <param name="message">Message that describes the error.</param>
-        public LoadDataException(string message) : base(message)
+        public LoadDataException(LoadDataErrorCode errorCode, string message) : base(message)
         {
+            this.ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -29,8 +31,9 @@ namespace DotNetCorePlotter.Utils
         /// </summary>
         /// <param name="message">Message that describes the error.</param>
         /// <param name="innerException">Exception that caused this exception.</param>
-        public LoadDataException(string message, Exception innerException) : base(message, innerException)
+        public LoadDataException(LoadDataErrorCode errorCode, string message, Exception innerException) : base(message, innerException)
         {
+            this.ErrorCode = errorCode;
         }
 
         /// <summary>
@@ -41,5 +44,7 @@ namespace DotNetCorePlotter.Utils
         private LoadDataException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
+
+        public LoadDataErrorCode ErrorCode { get; private set; }
     }
 }
