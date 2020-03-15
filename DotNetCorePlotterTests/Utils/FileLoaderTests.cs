@@ -8,11 +8,11 @@ namespace DotNetCorePlotterTests.Utils
 {
     public class FileLoaderTests
     {
+        private FileLoader fileLoader;
+
         [Test]
         public void LoadFileJustText()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var exception = Assert.Throws<TargetInvocationException>(
                 () => privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\wrong.txt" }));
@@ -26,8 +26,6 @@ namespace DotNetCorePlotterTests.Utils
         [Test]
         public void LoadFileLetterValue()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var exception = Assert.Throws<TargetInvocationException>(
                 () => privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\wrong3.txt" }));
@@ -41,8 +39,6 @@ namespace DotNetCorePlotterTests.Utils
         [Test]
         public void LoadFileNoData()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var result =
                 privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\data0.txt" });
@@ -56,8 +52,6 @@ namespace DotNetCorePlotterTests.Utils
         [Test]
         public void LoadFileThatDoesntExist()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var exception = Assert.Throws<TargetInvocationException>(
                 () => privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\noSuchFile.txt" }));
@@ -71,8 +65,6 @@ namespace DotNetCorePlotterTests.Utils
         [Test]
         public void LoadFileThreeValuesInLine()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var exception = Assert.Throws<TargetInvocationException>(
                 () => privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\wrong2.txt" }));
@@ -86,8 +78,6 @@ namespace DotNetCorePlotterTests.Utils
         [Test]
         public void LoadFileValidData()
         {
-            var fileLoader = new FileLoader();
-
             var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "LoadFile");
             var result =
                 privateLoadFileMethod.Invoke(fileLoader, new object[] { TestContext.CurrentContext.WorkDirectory + "\\TestData\\data.txt" });
@@ -101,6 +91,26 @@ namespace DotNetCorePlotterTests.Utils
             Assert.AreEqual(new DataPoint(10000d, 200d), dataPoints[1]);
             Assert.AreEqual(new DataPoint(3d, 3d), dataPoints[2]);
             Assert.AreEqual(new DataPoint(-1d, -1d), dataPoints[24]);
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            this.fileLoader = new FileLoader();
+        }
+
+        [Test]
+        public void SortDataPointsWithValidPoints()
+        {
+            var dataPoints = new List<DataPoint> { new DataPoint(1000, -5), new DataPoint(-1, 5), new DataPoint(5, 1000) };
+
+            var privateLoadFileMethod = this.GetPrivateMethod(fileLoader, "SortDataPoints");
+            privateLoadFileMethod.Invoke(fileLoader, new object[] { dataPoints });
+
+            Assert.AreEqual(3, dataPoints.Count);
+            Assert.AreEqual(new DataPoint(-1, 5), dataPoints[0]);
+            Assert.AreEqual(new DataPoint(5, 1000), dataPoints[1]);
+            Assert.AreEqual(new DataPoint(1000, -5), dataPoints[2]);
         }
 
         private MethodInfo GetPrivateMethod(FileLoader subject, string methodName)
@@ -119,32 +129,5 @@ namespace DotNetCorePlotterTests.Utils
 
             return method;
         }
-
-        //private Mock<IFileLoader> fileLoaderMock;
-        //private Mock<IMathHelper> mathHelperMock;
-
-        //[Test]
-        //public void LoadFile()
-        //{
-        //    var viewModel = new MainViewModel(fileLoaderMock.Object, mathHelperMock.Object);
-
-        //    Assert.NotNull(viewModel.LoadFileCommand);
-        //    Assert.NotNull(viewModel.FindFunctionCommand);
-        //    Assert.NotNull(viewModel.DrawFunctionCommand);
-        //    Assert.AreEqual(FunctionType.Linear, viewModel.FunctionType);
-        //    Assert.AreEqual(0, viewModel.DataPoints.Count);
-        //    Assert.AreEqual(0, viewModel.GeneratedDataPoints.Count);
-        //    Assert.IsFalse(viewModel.IsValidPlotLoaded);
-        //    Assert.AreEqual("y = (0 * x) + 0", viewModel.ResultingFunction);
-        //    Assert.AreEqual("0", viewModel.VariableA);
-        //    Assert.AreEqual("0", viewModel.VariableB);
-        //}
-
-        //[SetUp]
-        //public void Setup()
-        //{
-        //    this.fileLoaderMock = new Mock<IFileLoader>();
-        //    this.mathHelperMock = new Mock<IMathHelper>();
-        //}
     }
 }
