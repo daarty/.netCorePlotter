@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
@@ -15,7 +14,7 @@ namespace DotNetCorePlotter.Utils
     public class FileLoader : IFileLoader
     {
         /// <inheritdoc/>
-        public List<DataPoint> DisplayDialogueAndLoadDataPoints()
+        public List<DataPoint> DisplayDialogAndLoadDataPoints()
         {
             var dialog = new OpenFileDialog();
             dialog.Title = "Select Data File";
@@ -94,7 +93,8 @@ namespace DotNetCorePlotter.Utils
         {
             try
             {
-                return double.Parse(input, new CultureInfo("en-US"));
+                // Assure 'en-US' culture during parsing to avoid punctuation issues.
+                return double.Parse(input, App.CultureInfo);
             }
             catch (Exception ex) when (ex is ArgumentNullException || ex is FormatException || ex is OverflowException)
             {

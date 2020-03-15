@@ -149,12 +149,12 @@ namespace DotNetCorePlotter
         /// </summary>
         public string VariableA
         {
-            get => doubleValueA.ToString();
+            get => doubleValueA.ToString(App.CultureInfo);
             set
             {
                 if (VariableA != value)
                 {
-                    if (!double.TryParse(value, out var validValue))
+                    if (!TryParseDouble(value, out var validValue))
                     {
                         return;
                     }
@@ -171,12 +171,12 @@ namespace DotNetCorePlotter
         /// </summary>
         public string VariableB
         {
-            get => doubleValueB.ToString();
+            get => doubleValueB.ToString(App.CultureInfo);
             set
             {
                 if (VariableB != value)
                 {
-                    if (!double.TryParse(value, out var validValue))
+                    if (!TryParseDouble(value, out var validValue))
                     {
                         return;
                     }
@@ -189,6 +189,7 @@ namespace DotNetCorePlotter
         }
 
         private IFileLoader FileLoader { get; }
+
         private IMathHelper MathHelper { get; }
 
         protected void OnPropertyChanged(string name)
@@ -272,20 +273,36 @@ namespace DotNetCorePlotter
                     break;
             }
 
-            this.VariableA = tuple.a.ToString();
-            this.VariableB = tuple.b.ToString();
+            this.VariableA = tuple.a.ToString(App.CultureInfo);
+            this.VariableB = tuple.b.ToString(App.CultureInfo);
 
             this.DrawFunction();
         }
 
         private void LoadFileCallback()
         {
-            this.DataPoints = this.FileLoader.DisplayDialogueAndLoadDataPoints();
+            this.DataPoints = this.FileLoader.DisplayDialogAndLoadDataPoints();
             this.IsValidPlotLoaded = this.DataPoints.Any();
             OnPropertyChanged(nameof(DataPoints));
             OnPropertyChanged(nameof(IsValidPlotLoaded));
 
             this.FindFunction();
+        }
+
+        private bool TryParseDouble(string input, out double validValue)
+        {
+            try
+            {
+                // Assure 'en-US' culture during parsing to avoid punctuation issues.
+                validValue = double.Parse(input, App.CultureInfo);
+                return true;
+            }
+            catch (Exception ex) when (ex is ArgumentNullException || ex is FormatException || ex is OverflowException)
+            {
+                Console.WriteLine($"Failed parsing the value '{input}'. Cause: '{ex.Message}'");
+                validValue = 0d;
+                return false;
+            }
         }
     }
 }
