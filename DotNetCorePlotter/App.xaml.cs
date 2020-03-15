@@ -10,8 +10,11 @@ namespace DotNetCorePlotter
     {
         public App()
         {
+            // Prepare dependency inhection for the MainWindow and its MainViewModel.
             var fileLoader = new FileLoader();
-            var mainViewModel = new MainViewModel(fileLoader);
+            var mathHelper = new MathHelper();
+
+            var mainViewModel = new MainViewModel(fileLoader, mathHelper);
             var mainWindow = new MainWindow(mainViewModel);
             mainWindow.Show();
         }

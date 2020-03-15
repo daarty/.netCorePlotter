@@ -7,15 +7,15 @@
         xmlns:mvvm="clr-namespace:DotNetCorePlotter.Mvvm"
         mc:Ignorable="d"
         Title=".NET Core Plotter"
-        Height="450" Width="800"
-        MinHeight="400" MinWidth="500">
+        Height="600" Width="1000"
+        MinHeight="400" MinWidth="700">
     <Window.Resources>
         <mvvm:EnumToBooleanConverter x:Key="enumConverter" />
     </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="350" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -44,6 +44,10 @@
                              IsChecked="{Binding Path=FunctionType,
                                                  Converter={StaticResource enumConverter},
                                                  ConverterParameter=PowerFunction}" />
+
+                <Button Content="Find Fitting Function" Margin="8" Padding="8,4"
+                        Command="{Binding FindFunctionCommand}" />
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -55,20 +59,25 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Margin="8" Text="a" />
-                    <TextBox Grid.Column="1" Margin="0,8,8,8" />
+                    <TextBox Grid.Column="1" Margin="0,8,8,8"
+                             Text="{Binding VariableA}" />
                     <TextBlock Grid.Row="1" Margin="8" Text="b" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,8,8,8" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,8,8,8"
+                             Text="{Binding VariableB}" />
                 </Grid>
 
-                <TextBlock Margin="8" Text="{Binding ResultingFunction}" />
+                <TextBlock Margin="8" Text="{Binding ResultingFunction}"
+                           TextWrapping="Wrap" />
+
                 <Button Content="Draw Function" Margin="8" Padding="8,4"
-                        Command="{Binding LoadFileCommand}" />
+                        Command="{Binding DrawFunctionCommand}" />
             </StackPanel>
         </Grid>
 
         <oxy:Plot Grid.Column="1" Title="Plot" Margin="0,0,8,0">
             <oxy:Plot.Series>
                 <oxy:LineSeries ItemsSource="{Binding DataPoints}" />
+                <oxy:LineSeries ItemsSource="{Binding GeneratedDataPoints}" />
             </oxy:Plot.Series>
         </oxy:Plot>
     </Grid>

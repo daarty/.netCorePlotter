@@ -10,20 +10,29 @@ namespace DotNetCorePlotter
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        public const string ExponentialFunction = "y = a * exp (b * x)";
+        public const double FunctionResolution = 5000;
+        public const string LinearFunction = "y = (a * x) + b";
+        public const string PowerFunction = "y = a * (x ^ b)";
+
+        private double doubleValueA = 0d;
+        private double doubleValueB = 0d;
         private FunctionType functionType = FunctionType.Linear;
-        private string variableA = string.Empty;
 
-        private string variableB = string.Empty;
-
-        public MainViewModel(IFileLoader fileLoader)
+        public MainViewModel(IFileLoader fileLoader, IMathHelper mathHelper)
         {
             this.FileLoader = fileLoader;
+            this.MathHelper = mathHelper;
             LoadFileCommand = new DelegateCommand(LoadFileCallback);
+            FindFunctionCommand = new DelegateCommand(FindFunction);
+            DrawFunctionCommand = new DelegateCommand(DrawFunction);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public List<DataPoint> DataPoints { get; private set; } = null;
+        public List<DataPoint> DataPoints { get; private set; } = new List<DataPoint>();
+        public ICommand DrawFunctionCommand { get; }
+        public ICommand FindFunctionCommand { get; }
 
         public FunctionType FunctionType
         {
@@ -39,6 +48,7 @@ namespace DotNetCorePlotter
             }
         }
 
+        public List<DataPoint> GeneratedDataPoints { get; private set; } = new List<DataPoint>();
         public bool IsValidPlotLoaded { get; private set; }
         public ICommand LoadFileCommand { get; }
 
@@ -47,18 +57,19 @@ namespace DotNetCorePlotter
             get
             {
                 string functionString = null;
-                switch (FunctionType)
+
+                switch (functionType)
                 {
                     case FunctionType.Linear:
-                        functionString = "y = (a * x) + b";
+                        functionString = LinearFunction;
                         break;
 
                     case FunctionType.Exponential:
-                        functionString = "y = a * exp (b * x)";
+                        functionString = ExponentialFunction;
                         break;
 
                     case FunctionType.PowerFunction:
-                        functionString = "y = a * (x ^ b)";
+                        functionString = PowerFunction;
                         break;
                 }
 
@@ -71,19 +82,25 @@ namespace DotNetCorePlotter
                     functionString = functionString.Replace("b", VariableB);
                 }
 
+                DrawFunction();
+
                 return functionString;
             }
         }
 
         public string VariableA
         {
-            get => variableA;
+            get => doubleValueA.ToString();
             set
             {
-                // TODO add validation of number
-                if (variableA != value)
+                if (VariableA != value)
                 {
-                    variableA = value;
+                    if (!double.TryParse(value, out var validValue))
+                    {
+                        return;
+                    }
+
+                    doubleValueA = validValue;
                     OnPropertyChanged(nameof(VariableA));
                     OnPropertyChanged(nameof(ResultingFunction));
                 }
@@ -92,13 +109,17 @@ namespace DotNetCorePlotter
 
         public string VariableB
         {
-            get => variableB;
+            get => doubleValueB.ToString();
             set
             {
-                // TODO add validation of number
-                if (variableB != value)
+                if (VariableB != value)
                 {
-                    variableB = value;
+                    if (!double.TryParse(value, out var validValue))
+                    {
+                        return;
+                    }
+
+                    doubleValueB = validValue;
                     OnPropertyChanged(nameof(VariableB));
                     OnPropertyChanged(nameof(ResultingFunction));
                 }
@@ -106,10 +127,70 @@ namespace DotNetCorePlotter
         }
 
         private IFileLoader FileLoader { get; }
+        private IMathHelper MathHelper { get; }
 
         protected void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void DrawFunction()
+        {
+            // Overwriting instead of Clear() is needed to refresh the plot.
+            GeneratedDataPoints = new List<DataPoint>();
+            if (!this.DataPoints.Any())
+            {
+                return;
+            }
+
+            var firstX = DataPoints[0].X;
+            var lastX = DataPoints[DataPoints.Count - 1].X;
+
+            var resolutionStep = (lastX - firstX) / FunctionResolution;
+
+            for (int i = 0; i < FunctionResolution; i++)
+            {
+                var x = firstX + resolutionStep * i;
+                var y = this.doubleValueA * x + this.doubleValueB;
+                GeneratedDataPoints.Add(new DataPoint(x, y));
+            }
+
+            OnPropertyChanged(nameof(GeneratedDataPoints));
+        }
+
+        private void FindFunction()
+        {
+            // Overwriting instead of Clear() is needed to refresh the plot.
+            GeneratedDataPoints = new List<DataPoint>();
+            if (!this.DataPoints.Any())
+            {
+                return;
+            }
+
+            (double a, double b) tuple = (0d, 0d);
+
+            var xData = this.DataPoints.Select(p => p.X).ToArray();
+            var yData = this.DataPoints.Select(p => p.Y).ToArray();
+
+            switch (functionType)
+            {
+                case FunctionType.Linear:
+                    tuple = this.MathHelper.FindLinearFunction(xData, yData);
+                    break;
+
+                case FunctionType.Exponential:
+                    tuple = this.MathHelper.FindLinearFunction(xData, yData);
+                    break;
+
+                case FunctionType.PowerFunction:
+                    tuple = this.MathHelper.FindLinearFunction(xData, yData);
+                    break;
+            }
+
+            this.VariableA = tuple.a.ToString();
+            this.VariableB = tuple.b.ToString();
+
+            this.DrawFunction();
         }
 
         private void LoadFileCallback()
@@ -118,6 +199,8 @@ namespace DotNetCorePlotter
             this.IsValidPlotLoaded = this.DataPoints.Any();
             OnPropertyChanged(nameof(DataPoints));
             OnPropertyChanged(nameof(IsValidPlotLoaded));
+
+            this.FindFunction();
         }
     }
 }
