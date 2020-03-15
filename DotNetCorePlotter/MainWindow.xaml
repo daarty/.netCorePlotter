@@ -60,17 +60,20 @@
 
                     <TextBlock Margin="8" Text="a" />
                     <TextBox Grid.Column="1" Margin="0,8,8,8"
-                             Text="{Binding VariableA}" />
+                             Text="{Binding VariableA}"
+                             KeyDown="VariableTextBoxKeyDown" />
                     <TextBlock Grid.Row="1" Margin="8" Text="b" />
                     <TextBox Grid.Row="1" Grid.Column="1" Margin="0,8,8,8"
-                             Text="{Binding VariableB}" />
+                             Text="{Binding VariableB}"
+                             KeyDown="VariableTextBoxKeyDown" />
                 </Grid>
 
                 <TextBlock Margin="8" Text="{Binding ResultingFunction}"
                            TextWrapping="Wrap" />
 
-                <Button Content="Draw Function" Margin="8" Padding="8,4"
-                        Command="{Binding DrawFunctionCommand}" />
+                <Button x:Name="DrawButton" Margin="8" Padding="8,4"
+                        Command="{Binding DrawFunctionCommand}" 
+                        Content="Draw Function" />
 
                 <TextBlock Text="Color Legend:" Margin="8,8,8,0" />
                 <TextBlock Foreground="Blue" Text="Loaded Data" Margin="16,0" />

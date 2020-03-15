@@ -9,6 +9,9 @@ using OxyPlot;
 
 namespace DotNetCorePlotter.Utils
 {
+    /// <summary>
+    /// Implementation of the <see cref="IFileLoader"/> interface.
+    /// </summary>
     public class FileLoader : IFileLoader
     {
         /// <inheritdoc/>
@@ -51,11 +54,8 @@ namespace DotNetCorePlotter.Utils
             return dataPoints;
         }
 
-        /// <inheritdoc/>
-        public List<DataPoint> LoadFile(string filePath)
+        private List<DataPoint> LoadFile(string filePath)
         {
-            // TODO Add CancellationToken
-            // TODO async ReadAllLinesAsync
             string[] lines = null;
             try
             {

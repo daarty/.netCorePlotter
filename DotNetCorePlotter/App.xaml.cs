@@ -8,6 +8,9 @@ namespace DotNetCorePlotter
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="App"/>.
+        /// </summary>
         public App()
         {
             // Prepare dependency inhection for the MainWindow and its MainViewModel.

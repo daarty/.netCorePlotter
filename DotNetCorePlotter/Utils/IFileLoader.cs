@@ -3,21 +3,15 @@ using OxyPlot;
 
 namespace DotNetCorePlotter.Utils
 {
+    /// <summary>
+    /// Interface with methods that help loading files.
+    /// </summary>
     public interface IFileLoader
     {
         /// <summary>
-        /// TODO
+        /// Displays an 'Open File' dialogue, loads the selected file, parses its content and returns data points.
         /// </summary>
-        /// <param name="filePath"></param>
         /// <returns>An array of DataPoints; If the process fails, returns an empty array.</returns>
         List<DataPoint> DisplayDialogueAndLoadDataPoints();
-
-        /// <summary>
-        /// TODO
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        /// <throws><see cref="LoadDataException"/> if loading the file or parsing it fails.</throws>
-        List<DataPoint> LoadFile(string filePath);
     }
 }
