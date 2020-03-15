@@ -3,20 +3,73 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DotNetCorePlotter"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:mvvm="clr-namespace:DotNetCorePlotter.Mvvm"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title=".NET Core Plotter"
+        Height="450" Width="800"
+        MinHeight="400" MinWidth="500">
+    <Window.Resources>
+        <mvvm:EnumToBooleanConverter x:Key="enumConverter" />
+    </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <Button Content="Load File" Margin="8" Padding="8,4"
-                Command="{Binding LoadFileCommand}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Button Content="Load File" Margin="8" Padding="8,4"
+                    Command="{Binding LoadFileCommand}" />
+
+            <StackPanel Grid.Row="1" IsEnabled="{Binding IsValidPlotLoaded}">
+                <RadioButton GroupName="FunctionTypeGroup" Margin="8"
+                             Content="Linear"
+                             IsChecked="{Binding Path=FunctionType,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Linear}" />
+                <RadioButton GroupName="FunctionTypeGroup" Margin="8"
+                             Content="Exponential"
+                             IsChecked="{Binding Path=FunctionType,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=Exponential}" />
+                <RadioButton GroupName="FunctionTypeGroup" Margin="8"
+                             Content="Power Function"
+                             IsChecked="{Binding Path=FunctionType,
+                                                 Converter={StaticResource enumConverter},
+                                                 ConverterParameter=PowerFunction}" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Margin="8" Text="a" />
+                    <TextBox Grid.Column="1" Margin="0,8,8,8" />
+                    <TextBlock Grid.Row="1" Margin="8" Text="b" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,8,8,8" />
+                </Grid>
+
+                <TextBlock Margin="8" Text="{Binding ResultingFunction}" />
+                <Button Content="Draw Function" Margin="8" Padding="8,4"
+                        Command="{Binding LoadFileCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <oxy:Plot Grid.Column="1" Title="Plot" Margin="0,0,8,0">
+            <oxy:Plot.Series>
+                <oxy:LineSeries ItemsSource="{Binding DataPoints}" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
     </Grid>
 </Window>

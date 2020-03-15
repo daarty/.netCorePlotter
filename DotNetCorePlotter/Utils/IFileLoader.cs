@@ -1,4 +1,5 @@
-﻿using OxyPlot;
+﻿using System.Collections.Generic;
+using OxyPlot;
 
 namespace DotNetCorePlotter.Utils
 {
@@ -9,7 +10,7 @@ namespace DotNetCorePlotter.Utils
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns>An array of DataPoints; If the process fails, returns an empty array.</returns>
-        DataPoint[] DisplayDialogueAndLoadDataPoints();
+        List<DataPoint> DisplayDialogueAndLoadDataPoints();
 
         /// <summary>
         /// TODO
@@ -17,6 +18,6 @@ namespace DotNetCorePlotter.Utils
         /// <param name="filePath"></param>
         /// <returns></returns>
         /// <throws><see cref="LoadDataException"/> if loading the file or parsing it fails.</throws>
-        DataPoint[] LoadFile(string filePath);
+        List<DataPoint> LoadFile(string filePath);
     }
 }

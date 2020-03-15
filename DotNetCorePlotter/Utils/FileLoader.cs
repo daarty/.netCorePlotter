@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Microsoft.Win32;
 using OxyPlot;
 
@@ -11,19 +12,20 @@ namespace DotNetCorePlotter.Utils
     public class FileLoader : IFileLoader
     {
         /// <inheritdoc/>
-        public DataPoint[] DisplayDialogueAndLoadDataPoints()
+        public List<DataPoint> DisplayDialogueAndLoadDataPoints()
         {
             var dialog = new OpenFileDialog();
             dialog.Title = "Select Data File";
             dialog.Filter = "All files (*.*)|*.*";
             dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 
+            var dataPoints = new List<DataPoint> { };
             var result = dialog.ShowDialog();
             if (result ?? false)
             {
                 try
                 {
-                    return this.LoadFile(dialog.FileName);
+                    dataPoints = this.LoadFile(dialog.FileName);
                 }
                 catch (LoadDataException ex)
                 {
@@ -31,11 +33,26 @@ namespace DotNetCorePlotter.Utils
                 }
             }
 
-            return new DataPoint[] { };
+            if (!dataPoints.Any())
+            {
+                return dataPoints;
+            }
+
+            try
+            {
+                dataPoints.Sort((p1, p2) => p1.X.CompareTo(p2.X));
+            }
+            catch (Exception ex) when (ex is ArgumentNullException || ex is ArgumentException)
+            {
+                Debug.WriteLine($"Failed sorting Datapoints. Cause: '{ex.Message}'");
+                dataPoints = new List<DataPoint> { };
+            }
+
+            return dataPoints;
         }
 
         /// <inheritdoc/>
-        public DataPoint[] LoadFile(string filePath)
+        public List<DataPoint> LoadFile(string filePath)
         {
             // TODO Add CancellationToken
             // TODO async ReadAllLinesAsync
@@ -70,7 +87,7 @@ namespace DotNetCorePlotter.Utils
 
             Debug.WriteLine("Finished parsing DataPoints.");
 
-            return data.ToArray();
+            return data;
         }
 
         private double ParseDouble(string input)
