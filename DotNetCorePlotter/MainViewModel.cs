@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
@@ -44,6 +45,7 @@ namespace DotNetCorePlotter
                     functionType = value;
                     OnPropertyChanged(nameof(FunctionType));
                     OnPropertyChanged(nameof(ResultingFunction));
+                    this.FindFunction();
                 }
             }
         }
@@ -148,11 +150,34 @@ namespace DotNetCorePlotter
 
             var resolutionStep = (lastX - firstX) / FunctionResolution;
 
-            for (int i = 0; i < FunctionResolution; i++)
+            switch (functionType)
             {
-                var x = firstX + resolutionStep * i;
-                var y = this.doubleValueA * x + this.doubleValueB;
-                GeneratedDataPoints.Add(new DataPoint(x, y));
+                case FunctionType.Linear:
+                    for (int i = 0; i < FunctionResolution; i++)
+                    {
+                        var x = firstX + resolutionStep * i;
+                        var y = this.doubleValueA * x + this.doubleValueB;
+                        GeneratedDataPoints.Add(new DataPoint(x, y));
+                    }
+                    break;
+
+                case FunctionType.Exponential:
+                    for (int i = 0; i < FunctionResolution; i++)
+                    {
+                        var x = firstX + resolutionStep * i;
+                        var y = this.doubleValueA * Math.Exp(this.doubleValueB * x);
+                        GeneratedDataPoints.Add(new DataPoint(x, y));
+                    }
+                    break;
+
+                case FunctionType.PowerFunction:
+                    for (int i = 0; i < FunctionResolution; i++)
+                    {
+                        var x = firstX + resolutionStep * i;
+                        var y = this.doubleValueA * Math.Pow(x, this.doubleValueB);
+                        GeneratedDataPoints.Add(new DataPoint(x, y));
+                    }
+                    break;
             }
 
             OnPropertyChanged(nameof(GeneratedDataPoints));
@@ -179,11 +204,11 @@ namespace DotNetCorePlotter
                     break;
 
                 case FunctionType.Exponential:
-                    tuple = this.MathHelper.FindLinearFunction(xData, yData);
+                    tuple = this.MathHelper.FindExponentialFunction(xData, yData);
                     break;
 
                 case FunctionType.PowerFunction:
-                    tuple = this.MathHelper.FindLinearFunction(xData, yData);
+                    tuple = this.MathHelper.FindPowerFunction(xData, yData);
                     break;
             }
 
